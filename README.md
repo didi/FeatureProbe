@@ -1,3 +1,5 @@
+# NOTE: Find the latest project on [github.com/FeatureProbe](https://github.com/FeatureProbe) 
+
 # FeatureProbe
 
 FeatureProbe is our open source **feature management service**. 
