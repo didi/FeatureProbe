@@ -1,5 +1,16 @@
 # NOTE: Find the latest project on [github.com/FeatureProbe](https://github.com/FeatureProbe) 
 
+![Feature Management Service, FeatureProbe](./pictures/featureprobe_title.png)
+
+
+[![Last Commit](https://img.shields.io/github/last-commit/FeatureProbe/FeatureProbe)](https://github.com/FeatureProbe/FeatureProbe)
+[![Docker Pulls](https://img.shields.io/docker/pulls/featureprobe/api)](https://hub.docker.com/u/featureprobe)
+[![Apache-2.0 license](https://img.shields.io/github/license/FeatureProbe/FeatureProbe)](https://github.com/FeatureProbe/FeatureProbe/blob/main/LICENSE)
+[![Join FeatureProbe on Slack](https://img.shields.io/badge/slack-join-blue?logo=slack)](https://join.slack.com/t/featureprobe/shared_invite/zt-1b5qd120x-R~dDbpgL85GgCLTtfNDj0Q)
+[![Twitter URL](https://img.shields.io/twitter/url/https/twitter.com/FeatureProbe.svg?style=social&label=FeatureProbe)](https://twitter.com/FeatureProbe)
+
+
+
 # FeatureProbe
 
 FeatureProbe is our open source **feature management service**. 
@@ -69,10 +80,11 @@ Make sure you have [`git`](https://git-scm.com/) and [`docker`](https://www.dock
 Clone the repository to your server and boot up the services. Change the ports defined in docker-compose.yml as needed.
 
 ``` bash
-git clone https://github.com/FeatureProbe/featureprobe.git
-cd featureprobe
+git clone https://github.com/FeatureProbe/FeatureProbe.git
+cd FeatureProbe
 docker compose up
 ```
+*For users in Mainland China, please refer to [configure mirror](DOCKER_HUB.md) to speed up your download.*
 
 Go to UI/Portal at `localhost:4009` and use the default credentials to log in. 
 Note that you should replace `4009` with your port number if you made any changes previously. 
@@ -86,23 +98,28 @@ Remember to update the admin password after your first time login.
 There are two types of SDKs for FeatureProbe. 
 
 The first one is server-side SDK. These SDKs work in server side applications (such as 
-Java [Java SDK](https://github.com/FeatureProbe/server-sdk-java/blob/master/README.md), 
-Rust [Rust SDK](https://github.com/FeatureProbe/server-sdk-rust/blob/master/README.md)
+[Java SDK](https://github.com/FeatureProbe/server-sdk-java/blob/master/README.md), 
+[Rust SDK](https://github.com/FeatureProbe/server-sdk-rust/blob/master/README.md)
 ) and use configuration 
 data fetched from FeatureProbe Server to evaluate the variation results. They are flexible to allow you adding your own 
 configurations or rules on top of the ones from the Server.
 
-The second one is client-side SDK. These SDKs work in client side applications (such as 
-Javascript [Javascript SDK](https://github.com/FeatureProbe/client-sdk-js/blob/master/README.md), 
-iOS or Android [mobile SDK](https://github.com/FeatureProbe/client-sdk-mobile/blob/master/README.md)) and
+The second one is client-side SDK. These SDKs work in client side applications (such as [Javascript SDK](https://github.com/FeatureProbe/client-sdk-js/blob/master/README.md), 
+or [mobile SDK](https://github.com/FeatureProbe/client-sdk-mobile/blob/master/README.md) for iOS and Android) and
 use the evaluation results provided by FeatureProbe Server. The usage is straightforward and only getting evaluation results
 from FeatureProbe Server can guarantee the client side performance and data security.
 
 
 Find out the available coding language-specific SDK here and try them out in your applications.
 
+**Server Side SDK**
 * [Java SDK](https://github.com/FeatureProbe/server-sdk-java)
 * [Rust SDK](https://github.com/FeatureProbe/server-sdk-rust)
+* [Golang SDK](https://github.com/FeatureProbe/server-sdk-go)
+* [Python SDK](coming soon...)
+
+
+**Client Side SDK**
 * [Javascript SDK](https://github.com/FeatureProbe/client-sdk-js)
 * [Android SDK](https://github.com/FeatureProbe/client-sdk-mobile)
 * [iOS SDK](https://github.com/FeatureProbe/client-sdk-mobile)
@@ -132,3 +149,20 @@ taking part in improving FeatureProbe.
 ## License
 
 This project is licensed under the Apache 2.0 License - see the [LICENSE](LICENSE) file for details.
+
+
+## Community and Sharing
+
+We are growing a community to help newcomer to learn FeatureProbe. Don't hesitate to reach out for help.
+
+If you want ask open questions about FeatureProbe, feature management or discuss these topics in general, join us on [![Join FeatureProbe on Slack](https://img.shields.io/badge/slack-join-blue?logo=slack)](https://join.slack.com/t/featureprobe/shared_invite/zt-1b5qd120x-R~dDbpgL85GgCLTtfNDj0Q) 
+
+Or if you prefer to talk in chinese, join our wechat group: 
+
+<img src="https://github.com/FeatureProbe/FeatureProbe/blob/main/pictures/mmexport1656299453613.jpg" width = "250" />
+
+For Bug report or new feature requirement, create a [GitHub issue](https://github.com/FeatureProbe/FeatureProbe/issues/new/choose) for us.
+
+## Star History
+
+[![Star History Chart](https://api.star-history.com/svg?repos=FeatureProbe/FeatureProbe&type=Date)](https://star-history.com/#FeatureProbe/FeatureProbe&Date)
