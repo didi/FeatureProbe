@@ -1,6 +1,6 @@
 # NOTE: Find the latest project on [github.com/FeatureProbe](https://github.com/FeatureProbe) 
 
-![Feature Management Service, FeatureProbe](./pictures/featureprobe_title.png)
+![Feature Management Service, FeatureProbe](https://github.com/FeatureProbe/FeatureProbe/blob/main/pictures/featureprobe_title.png)
 
 
 [![Last Commit](https://img.shields.io/github/last-commit/FeatureProbe/FeatureProbe)](https://github.com/FeatureProbe/FeatureProbe)
