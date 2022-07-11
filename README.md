@@ -1,6 +1,6 @@
-# NOTE: Find the latest project on [github.com/FeatureProbe](https://github.com/FeatureProbe) 
+# 注意：完整代码库请跳转到 [FeatureProbe](https://github.com/FeatureProbe)，本目录只包含部分文档
 
-![Feature Management Service, FeatureProbe](https://github.com/FeatureProbe/FeatureProbe/blob/main/pictures/featureprobe_title.png)
+![Feature Management Service, FeatureProbe](https://github.com/FeatureProbe/FeatureProbe/raw/main/pictures/featureprobe_title.png)
 
 
 [![Last Commit](https://img.shields.io/github/last-commit/FeatureProbe/FeatureProbe)](https://github.com/FeatureProbe/FeatureProbe)
@@ -13,134 +13,105 @@
 
 # FeatureProbe
 
-FeatureProbe is our open source **feature management service**. 
-It allows R&D, SRE and operation teams to launch new features or switch software implementations with confidence and lower risk.
-FeatureProbe eliminates manual delays through its practice in continuous delivery and is not hindered by the size of a 
-team or the complexity of a product, which allows developers to maintain their velocity. 
-It also enables the operation team to change online service parameters within seconds or roll out configurations progressively 
-without effort.
+FeatureProbe 是一个开源的 **『功能』管理** 服务。它包含灰度放量、AB实验、实时配置变更等针对『功能粒度』的一系列管理操作。这里的『功能』包含业务功能、技术改造、运营活动等任何涉及代码开发的『功能』。它可以让开发人员、运营人员、运维人员安全、高效的完成线上变更，同时精细控制变更风险。『功能』粒度的发布管理是实现DevOps的核心工具之一，通过『功能』开关，可以降低分支开发带来的合并复杂性，轻松实现主干开发以及持续交付。
 
-With over 5 years of usage in a company of 5000+ developers, we have seen the remarkable difference FeatureProbe makes
-through the acceleration of daily development tasks. It also supports our million-user level product daily operations.
-
-Now we are making this project open source to help more developers and operation people and contribute to the programming society. 
-
-### Why you should use FeatureProbe
-
-FeatureProbe brings about value to our daily development and operations in these aspects:
-
-1. **Reducing development effort to merge branches**. 
-We can use feature toggles to set up gates for features on the 
-main branch rather than creating branches for features. 
-This can help us reduce time and effort from merging branches frequently and increase 
-development velocity.
-2. **Lowering down the time to recover**. 
-Feature toggles can separate and limit service issues from spreading by turning off the problematic services or carrying
-out service degradations. The SRE team can control the toggles on UI rather than waking up R&D on-call staff to do something.
-3. **Saving testing environment cost**. 
-FeatureProbe makes it possible to test new features in the production
-environment by enabling them for a small portion of users and collecting feedback.
-4. **One-stop configuration center for operation**. 
-FeatureProbe provides a comprehensive and user-friendly management portal for configuring and managing features, 
-rollout, rollback, peer reviews, accounts and permissions, the operation team can use the portal solely to set up and send out specific features/versions to 
-certain users based on their geolocation or other factors. 
-5. **Doing A/B testings to get insights**. 
-FeatureProbe helps the operation team do online A/B testing easily and gain insight
-from different marketing/sales strategies, which is one of the key factors in increasing the product or service's 
-sales performance.
-6. **And more!** 
-Discover all the amazing things FeatureProbe can accomplish. 
+『功能』粒度开关管理服务已经是各个互联网大厂的标配平台，我们将互联网大厂内部『功能』开关管理平台的优秀实践与经验融入这个开源项目中。希望推广『功能』管理理念和实践在软件开发社区的普及，携手开源社区，提升软件开发行业的效能。
 
 
+### FeatureProbe适用于哪些场景
 
+根据我们的经验，FeatureProbe可以在以下场景中提升软件研发的效能:
+
+1. **『功能粒度』灰度发布**:
+每个功能独立灰度发布给用户。可迅速关闭受BUG影响的功能，同时不影响其他正常功能的使用。
+3. **降低测试环境搭建成本**:
+节约测试环境搭建和线下测试时间成本。利用线上环境小流量测试，环境真实同时影响可控。
+2. **降低故障恢复时间**:故障发生时通过降级策略调整服务行为，保障用户主路径不受影响。
+3. **简化研发协同方式**: 
+用功能开关替代传统分支开发的团队协同模式。真正实现主干开发、持续部署。减少分支合并冲突，显著加快迭代速度。
+4. **统一的配置管理中心**:
+通过用户友好的操作页面，统一操作线上配置，实时修改功能参数，让运营活动生效更简单。
+6. **更多的使用场景!** 
+期待大家与我们一起去发现与尝试。
 
 ![FeatureProbe screenshot](./pictures/toggles.png) 
 
-
-
 ## Getting Started
 
-FeatureProbe includes several key components, such as 
-[API Server](https://github.com/FeatureProbe/feature-probe-api/blob/master/README.md), 
-[Evaluation Server](https://github.com/FeatureProbe/feature-probe-ui/blob/master/README.md), 
- [UI/Portal](https://github.com/FeatureProbe/feature-probe-ui/blob/master/README.md), 
-database and SDKs for 
-different coding languages. 
+FeatureProbe 由以下各子模块组成：
+
+1. [API Server](https://github.com/FeatureProbe/feature-probe-api/blob/master/README.md)：提供核心数据管理和对外API。
+2. [Evaluation Server](https://github.com/FeatureProbe/feature-probe-ui/blob/master/README.md)：提供高性能的灰度规则判定引擎。
+3. [UI/Portal](https://github.com/FeatureProbe/feature-probe-ui/blob/master/README.md)：提供用户操作页面
+4. database
+5. 各种语言SDK.
+ 
 ![FeatureProbe Architecture](./pictures/feature_probe_architecture.png)
-You can boot up all the key components together through Docker compose, which will be sufficient for most use cases.
-In special circumstance, you may want to boot up these components independently on different servers, by using 
-Docker images, or by modifying the source code and building/deploying your own version. 
+
+对于想要体验一下FeatureProbe的新用户，可以通过我们提供的Docker compose一键启动所有核心服务（包含API Server，Evaluation Server，UI，database），目前来说这是最方便的方法（我们也在努力提供一个SaaS化的试用环境，敬请期待），镜像拉取可能需要一点时间，我们也提供了国内镜像下载的[加速方案](DOCKER_HUB.md) 。所有四个服务也有单独的Docker镜像用于单独部署，或者对于高手来说也可以直接从源码编译运行。
 
 
+### 1. 用Docker Compose启动FeatureProbe
 
-### 1. Starting FeatureProbe Service with Docker Compose
+首先你需要安装好[`git`](https://git-scm.com/) 和 [`docker`](https://www.docker.com/) 。然后从github clone当前代码目录，按照以下命令启动服务：
 
-Make sure you have [`git`](https://git-scm.com/) and [`docker`](https://www.docker.com/) installed.
-
-Clone the repository to your server and boot up the services. Change the ports defined in docker-compose.yml as needed.
 
 ``` bash
 git clone https://github.com/FeatureProbe/FeatureProbe.git
 cd FeatureProbe
 docker compose up
 ```
-*For users in Mainland China, please refer to [configure mirror](DOCKER_HUB.md) to speed up your download.*
 
-Go to UI/Portal at `localhost:4009` and use the default credentials to log in. 
-Note that you should replace `4009` with your port number if you made any changes previously. 
-Remember to update the admin password after your first time login.
+*如果存在端口冲突，可以在docker-composer.yml文件中先修改一下默认端口*
+
+*如果存在下载缓慢问题，可以看下如何[配置国内镜像](DOCKER_HUB.md)*
+
+docker启动成功后，打开浏览器，访问：`localhost:4009`（如果你改了默认端口，这里使用修改过的端口），并用以下默认帐号登录试用：
 
   - username: `admin`
   - password: `Pass1234`
 
-### 2. Importing SDK and Configuring Toggles in Your Code Base
 
-There are two types of SDKs for FeatureProbe. 
+### 2. 在你自己服务代码中调用FeatureProbe SDK，访问FeatureProbe平台上配置的『功能』开关
 
-The first one is server-side SDK. These SDKs work in server side applications (such as 
+FeatureProbe 提供两种类型的SDK：
+
+第一种是服务端SDK(例如：
 [Java SDK](https://github.com/FeatureProbe/server-sdk-java/blob/master/README.md), 
 [Rust SDK](https://github.com/FeatureProbe/server-sdk-rust/blob/master/README.md)
-) and use configuration 
-data fetched from FeatureProbe Server to evaluate the variation results. They are flexible to allow you adding your own 
-configurations or rules on top of the ones from the Server.
-
-The second one is client-side SDK. These SDKs work in client side applications (such as [Javascript SDK](https://github.com/FeatureProbe/client-sdk-js/blob/master/README.md), 
-or [mobile SDK](https://github.com/FeatureProbe/client-sdk-mobile/blob/master/README.md) for iOS and Android) and
-use the evaluation results provided by FeatureProbe Server. The usage is straightforward and only getting evaluation results
-from FeatureProbe Server can guarantee the client side performance and data security.
+) ，这类SDK一般适用于后端服务，SDK从FeatureProbe平台获取开关配置信息，在内存中执行规则进而控制宿主程序的行为，可用做控制灰度的用户属性可以按需添加。
 
 
-Find out the available coding language-specific SDK here and try them out in your applications.
+另一种是客户端SDK（例如： [Javascript SDK](https://github.com/FeatureProbe/client-sdk-js/blob/master/README.md), 
+或者 iOS，Android使用的  [mobile SDK](https://github.com/FeatureProbe/client-sdk-mobile/blob/master/README.md) ），客户端会连接Evaluation Server获取属于当前用户的开关配置。
 
-**Server Side SDK**
+以下是我们已经支持语言的SDK：
+
+**服务端SDK**
+
 * [Java SDK](https://github.com/FeatureProbe/server-sdk-java)
 * [Rust SDK](https://github.com/FeatureProbe/server-sdk-rust)
 * [Golang SDK](https://github.com/FeatureProbe/server-sdk-go)
 * [Python SDK](coming soon...)
 
 
-**Client Side SDK**
+**客户端SDK**
+
 * [Javascript SDK](https://github.com/FeatureProbe/client-sdk-js)
 * [Android SDK](https://github.com/FeatureProbe/client-sdk-mobile)
 * [iOS SDK](https://github.com/FeatureProbe/client-sdk-mobile)
 
-### 3. API Endpoints Documentation
+各语言SDK都提供example目录和代码，可以直接运行example代码来体验FeatureProbe平台与SDK的交互。
 
-Checkout the API endpoints at `http://localhost:4009/api-docs` after you boot up the service locally. You may 
-need to modify the host address and port if you deploy the services in a different way.
+### 3. API 文档
 
-### 4. Examples
-
-We provide several use cases to reflect our practises of using FeatureProbe to carry out feature configurations
-gradually, doing service degradation, and doing A/B testing. Check them out at 
-[User Guide](https://github.com/FeatureProbe/featureprobe/blob/master/USER_GUIDE.md).
+所有通过FeatureProbe UI操作的功能，都可以通过OpenAPI直接编程访问，在API服务启动的情况下，打开：`http://localhost:4009/api-docs` 就可以查看所有API的接口和使用方法。
 
 
 
 ## Contributing
-We are working on continue evolving FeatureProbe core, making it flexible and easier to use. 
-Development of FeatureProbe happens in the open on GitHub, and we are grateful to the 
-community for contributing bugfixes and improvements.
+
+我们仍在不断迭代，为FeatureProbe补充更多的功能，以便适应更多的使用场景和用户需求。开发活动会基于github的代码库持续发布。欢迎开源社区的朋友加入我们，提需求、报bug、参与社区讨论、提交PR都可以。
 
 Please read [CONTRIBUTING](CONTRIBUTING.md) for details on our code of conduct, and the process for 
 taking part in improving FeatureProbe.
@@ -153,15 +124,12 @@ This project is licensed under the Apache 2.0 License - see the [LICENSE](LICENS
 
 ## Community and Sharing
 
-We are growing a community to help newcomer to learn FeatureProbe. Don't hesitate to reach out for help.
+我们搭建了一个微信社区，帮助新朋友尽快了解FeatureProbe，新老朋友们也可以在社区一起讨论关于『功能』管理相关的任何话题. 扫描以下二维码加入我们。
 
-If you want ask open questions about FeatureProbe, feature management or discuss these topics in general, join us on [![Join FeatureProbe on Slack](https://img.shields.io/badge/slack-join-blue?logo=slack)](https://join.slack.com/t/featureprobe/shared_invite/zt-1b5qd120x-R~dDbpgL85GgCLTtfNDj0Q) 
+<img src="https://github.com/FeatureProbe/FeatureProbe/blob/main/pictures/Wechat0715.jpeg" width = "250" />
 
-Or if you prefer to talk in chinese, join our wechat group: 
+如果想上报BUG，或者贡献代码，请使用Github的Issue和PR功能： [GitHub issue](https://github.com/FeatureProbe/FeatureProbe/issues/new/choose) 
 
-<img src="https://github.com/FeatureProbe/FeatureProbe/blob/main/pictures/mmexport1656299453613.jpg" width = "250" />
-
-For Bug report or new feature requirement, create a [GitHub issue](https://github.com/FeatureProbe/FeatureProbe/issues/new/choose) for us.
 
 ## Star History
 
