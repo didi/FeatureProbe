@@ -4,46 +4,59 @@
 # - the Feature Probe Server
 # - the Feature Probe OpenAPI Document
 
-version: "3.1"
+version: "2.3"
 services:
   backendAPI:
-    image: feature-probe/api
+    image: featureprobe/api
     ports:
       - "4008:4008"
     environment:
       - spring.datasource.jdbc-url=jdbc:mysql://database:13306/feature_probe?useSSL=false&characterEncoding=utf8&autoReconnect=true&failOverReadOnly=false&rewriteBatchedStatements=TRUE&useSSL=false&serverTimezone=Asia/Shanghai
-      - spring.profiles.active=test
+      - spring.profiles.active=online
+      - spring.jpa.show-sql=false
+      - logging.level.root=INFO
+      - logging.level.org.hibernate.SQL=INFO
+      - logging.level.org.hibernate.type.descriptor.sql.BasicBinder=INFO
+      - app.analysis-url=http://analysisAPI:4006/analysis
+      - app.server-base-urls=http://127.0.0.1:4009/server
       - server.port=4008
       - TZ=Asia/Shanghai
     networks:
       - featureProbeNet
     depends_on:
       - database
+      - analysisAPI
     healthcheck:
-      test: ["CMD", "curl", "-f", "http://127.0.0.1:4008/api/actuator/health"]
-      interval: 10s
+      test: ["CMD", "curl", "-f", "http://127.0.0.1:4008/actuator/health"]
       timeout: 5s
-      retries: 6
+      interval: 10s
+      retries: 10
 
   serverAPI:
-    image: feature-probe/server:debian
+    image: featureprobe/server
     ports:
       - "4007:4007"
+      - "4011:4011"
     environment:
+      - RUST_LOG=info
       - FP_SERVER_PORT=4007
-      - FP_TOGGLES_URL=http://backendAPI:4008/api/server/toggles
-      - FP_EVENTS_URL=http://backendAPI:4008/api/server/events
-      - FP_KEYS_URL=http://backendAPI:4008/api/server/sdk_keys
-      - FP_REFRESH_SECONDS=10
+      - FP_REALTIME_PORT=4011
+      - FP_TOGGLES_URL=http://backendAPI:4008/internal/server/toggles
+      - FP_EVENTS_URL=http://backendAPI:4008/internal/server/events
+      - FP_KEYS_URL=http://backendAPI:4008/internal/server/sdk_keys
+      - FP_ANALYSIS_URL=http://analysisAPI:4006/events
+      - FP_REFRESH_SECONDS=3
       - TZ=Asia/Shanghai
     networks:
       - featureProbeNet
     depends_on:
       backendAPI:
         condition: service_healthy
+      analysisAPI:
+        condition: service_started
 
   ui:
-    image: feature-probe/ui
+    image: featureprobe/ui
     ports:
       - "4009:4009"
     environment:
@@ -54,7 +67,24 @@ services:
       - featureProbeNet
     depends_on:
       - backendAPI
+      - serverAPI
       - redoc
+      - database
+
+  analysisAPI:
+    image: featureprobe/analysis
+    ports:
+      - "4006:4006"
+    environment:
+      - TZ=Asia/Shanghai
+      - app.datasource.jdbcUrl=jdbc:mysql://database:13306/feature_probe_events
+      - app.datasource.username=root
+      - app.datasource.password=root
+      - spring.profiles.active=online
+    networks:
+      - featureProbeNet
+    depends_on:
+      - database
 
   database:
     image: mariadb:10.5.8
@@ -63,11 +93,11 @@ services:
     networks:
       - featureProbeNet
     environment:
-      - MYSQL_ROOT_PASSWORD=oot
+      - MYSQL_ROOT_PASSWORD=root
       - MYSQL_DATABASE=feature_probe
-      - MYSQL_USER=root
-      - MYSQL_PASSWORD=0oXSt4lMh
       - MYSQL_TCP_PORT=13306
+    volumes:
+      - ./scripts/db:/docker-entrypoint-initdb.d
 
   redoc:
     image: redocly/redoc
