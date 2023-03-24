@@ -1,292 +1,193 @@
-# User Guide
+用户手册
+# 用户使用手册
+欢迎来到FeatureProbe！从这里，您可以了解如何使用FeatureProbe的更多信息。
 
-The FeatureProbe User Guide provides an overview of FeatureProbe, instructions on how to set up accounts and projects, 
-and complete examples of adding, editing and using feature toggles.
+### 常见的使用场景
+1. 功能发版（增加新功能或整体版本升级，在不确定影响的情况下，可以只开放给少量用户进行快速试错，反馈良好的情况下再逐步放量，直到全量放开。
+2. 运营活动（不同时期的线上运营活动，模式基本固定，每次只需要修改几个变量）
+ - 例：运营人员想在"My First Project"项目下推出商品秒杀活动，需要根据不同城市设置不同的商品价格，以往都是需要通过开发在代码中写好，一旦价格需要变动，开发人员要在代码中修改线上商品价格，在经过审核部署发布等一些列操作，才能生效，使用FeatureProbe的功能开关，只需要运营人员修改一下“价格”，便可一秒发布生效。
 
-
-## Popular Use Cases
-
-New features launching or version release are the most common use of FeatureProbe. When we launch a new feature or update the service, we can enable them for a small fraction of the users in the first place to make sure things go 
-smoothly without impacting the majority of users. If those users don't complain or even give good feedback, we 
-can populate the changes to more users, and repeat the procedure till all users update to the new version.
-
-Further more, there are many other scenarios where we can use FeatureProbe.
-
-### Online Promotion Activities
- 
- Many companies periodically carry out promotion activities to boost sales. 
-These activities use similar templates in most cases, and the operation team just need to modify several 
-parameters to create a new promotion.
-
-- Use Case: An online shopping platform carries out a Black Friday sales gala and needs to change prices for many 
-   items. In the past, the R&D team change items prices and launch the changes with a long workflow. Now they can use 
-   FeatureProbe to toggle the items price and make them effective within a second.
-
-- Operation Procedure
-   
-     * The online sales operation team adds a new project named "My First Project" and adds a feature toggle 
-   named "commodity\_spike\_activity" for the "online" environment. Shown in below picture:![commodity spike activity screenshot](./pictures/Commodity_spike_activity.png)
-    * The developer imports the FeatureProbe SDK in the code base (Java code as an example), and uses the "commodity\_spike\_activity" toggle 
-   by setting the sdk Key which is assigned by FeatureProbe to "My First Project" "online" environment. 
-   The variations type is number, and the user parameter is "city". 
+   + 流程说明
+     * 运营人员在FeatureProbe上新增项目"My First Project"，并在项目的"online"环境下创建一个名叫"Promotional Campaign"的开关，开关配置如下图所示:![This is an image](./pictures/Commodity_spike_activity.png)
+     * 开发人员在代码中引用FeatureProbe的sdk，配置"online"的密钥，并关联开关的key（promotion_activity），设置number类型的variations（用户价格分层）对应好定义的参数city
   
     ```java
    FPUser user = new FPUser(user_id);
    user.with("city", city_name);
-   double discount = fpClient.numberValue("commodity_spike_activity", user, 1.0);
+   double discount = fpClient.numberValue("promotion_activity", user, 1.0);
    discountSetTo(discount);
     ```
+ 
+     * 在一切准备就绪后，运营人员直接把"Promotional Campaign"开关"启用"，配置内容便即刻生效了
+     * 价格需要变动的情况下，运营人员只需要直接修改variations中的价格，并分发给对应的人群即可
+
+3. 服务降级预案（如依赖的后端服务访问失败可以切服务切换为从缓存服务中获取历史数据版本）
+ - 例：一般依赖的商品库存服务发现故障时，需要开发人员通过修改代码的方式进行降级，于是使用FeatureProbe，一旦依赖的商品库存服务发现故障时，可以快速降级从缓存中获取相当的商品库存数据。
+   + 流程说明
+     * 开发人员在项目My First Project"的"online"环境下创建一个名叫"Service Degrade"的开关，开关配置如下图所示:![This is an image](./pictures/Store_service_fallback.png)
+     * 开发人员在代码中关联开关的key（service_degrade），设置boolean类型的variations（是否打开降级）
   
-   * The developer launches code base. Then operation people enable the toggle to make the city based pricing incentive
-   policy get effective.
-   * If the operation team needs to change prices, they can change the price variation settings on the FeatureProbe UI easily.
-
-### Service Degradation
-
-When the online service encounters extremely high demands that impact some dependency services 
-or there is something goes wrong (for example, a backend service gets inaccessible unexpectedly), we need to guarantee 
-the essential services work without disruption by using the cached data rather than fetching data from those problem services.
-
-- Use Case: The ecommerce service needs to call an inventory stocking service to show the product stocking information.
-   If the stocking service encounters some issue and is not available, the operation team can make use of FeatureProbe to 
-   get stocking data from the cached content within a second and carry out the time costly application fallback operation 
-   or switch over to a backup service without interrupt the online service.
-   
-- Operation Procedure
-   * The R&D team adds a new project named "My First Project" and adds a feature toggle 
-   named "store\_service\_fallback" for the "online" environment. Shown in below picture:![storage service fallback screenshot](./pictures/Store_service_fallback.png)
-   * The developer imports the FeatureProbe SDK in the code base (Java code as an example), and uses the "store\_service\_fallback" toggle 
-   by setting the sdk Key which is assigned by FeatureProbe to "My First Project" "online" environment. 
-   The variations type is boolean, and its result enables or disables the degradation.  
-  
-   ```java
-    FPUser user = new FPUser(user_id);
-    boolean fallback = fpClient.boolValue("store_service_fallback", user, false);
+    ```java
+   FPUser user = new FPUser(user_id);
+    boolean fallback = fpClient.boolValue("service_degrade", user, false);
     if (fallback) {
     	// Do something.
     } else {
     	// Do normal process.
     }
-   ```
-		   
-   * When there is something wrong with the dependency services, the operation team can change the variation from False to 
-   True to enable the degradation with cached/staled data to prevent service from being interrupted.
-
-### A/B Testing
-
-Design several solutions for a specific service, try them all and find out the most optimal/popular one.
+    ```
  
-- Use Case 1: Decide a button's color. Mike, the product manager, wants to change a "Buy" button for their ecommerce 
-   platform in Paris. The original color is in red, and he believes the Paris people would like blue, and he also wants 
-   to try green. He uses FeatureProbe to do the A/B testing to find out the better choice.
-- Operation Procedure
-   * The operation team adds a new project named "My First Project" and adds a feature toggle 
-   named "color\_ab\_test" for the "online" environment. Shown in below picture:![AB test screenshot](./pictures/Color_ab_test.png)
-   * The developer imports the FeatureProbe SDK in the code base (Java code as an example), and uses the "color\_ab\_test" toggle 
-   by setting the sdkKey which is assigned by FeatureProbe to "My First Project" "online" environment. 
-   The variations type is string, and the user parameter is "city". 
-   
-	```java
-    FPUser user = new FPUser(user_id);
+     * 当依赖的库存服务发生故障后，为避免对用户造成影响，可以快速将库存服务进行降级，使用缓存非实时库存数据。
+
+4. A/B实验（针对同一个板块，设计了几套不同的方案，想看一下哪种方案比较受欢迎）
+ - 例1：某平台的支付按钮的颜色想由红色改为了绿色，产品小王不缺定哪个颜色效果更好，于是想使用FeatureProbe的功能开关，针对这两种颜色对巴黎的用户做个实验，看到底哪个颜色购买率更高
+
+   + 流程说明
+     * 运营人员在项目My First Project"的"online"环境下创建一个名叫"Button Color AB Test"的开关，开关配置如下图所示:![This is an image](./pictures/Color_ab_test.png)
+     * 开发人员在代码中关联开关的key（color_ab_test），设置string类型的variations（颜色分类）对应好定义的参数city
+  
+    ```java
+   FPUser user = new FPUser(user_id);
     user.with("city", city_name);
     String color = fpClient.stringValue("color_ab_test", user, "red");
     setButtonColor(color);
-	```
-	   
-   * The developer launches code base. Then operation people enable the toggle to make the city based color setting
-   get effective.
-   * After several days of testing, Mike finds out that Paris people click the purchase button more when it is in blue,
-   and he carries our the configuration to show blue button for all Paris customers.
-   
-One More Thing: We provide a small trick in the demo project that enables you to display different logos for 
-different browsers. Try to find it out and make your website a little more interesting.
-
-# Main Features
-
-## Login
-You can use a valid account and its password to log in the FeatureProbe portal. 
-If it is the first time you log in a FeatureProbe service, you can use the default administrator account as 
-`Admin/Pass1234`. Remember to change the password after you log in for the first time.
-
-## Accounts Management
-
-### Creating Accounts
-Use an Administrator account to log in the FeatureProbe portal and create new accounts at the `Account Settings` page with below steps:
-
-1. Click the `+ Member` button in blue.
-2. Fill in account name in the `Accounts` field. You can massively create accounts by filling multiple accounts and 
-separating them with commas.
-3. By default, FeatureProbe assigns a default password to a newly created account.
-4. Or you can uncheck the `Default Password` and use your own password.
-5. Click `Add` button in the upper right corner to finish account creation.
-
-**Note**: new accounts will get effective immediately after they are created.
-
-
-
-### Editing Accounts
-
-The default "Admin" account cannot be edited by any account, and it can edit any other account.
-
-You can edit an account's password and save it to make the edit effective.
-
-**Node**: the account member will be automatically logged out if you edit its password and there is no activities of the 
-logged in account.
-
-
-### Deleting Accounts
-
-The default "Admin" account cannot be deleted by any account, and it can delete any other account.
-
-Click `delete` button and `Confirm` to delete it on the pop-up window.
-
-**Note**: Once an account has been deleted, you cannot create another account by using the same name.
-
-
-### Changing Password
-
-It is highly recommended changing an account's default password immediately after it is created with below steps:
-
-1. Fill in the old password
-2. Fill in the new password
-3. Fill in the new password again and make sure the two new passwords are identical.
-4. Click "Save" button to finish changing password. 
-
-## Projects Management
-
-### Creating Projects 
-
-One FeatureProbe account can manage multiple business objects by setting up Projects. For example, you can create a 
-project named "mobile client side app" and another project named "server side app", and set up its unique environments 
-and toggles respectively. The FeatureProbe system provides a default initial project named "My First Project" and it has
-two environments, `test` and `online`. You can add more projects in the `Projects` tab.![create project screenshot](./pictures/create_project.png)
-
-Here are the steps to add a new project:
-
-1. Click `Projects` tab to enter the projects page.
-2. Click the `+ Project` button in the top-right corner and open a new drawer page on the right to create a project.
-3. Enter new project's name.
-4. Enter key. It is a unique value to define a project and cannot be changed once the project is created.
-5. Enter project descriptions.
-6. Create the project by clicking the `Create` button at the top of the drawer window. Now the project is created, and 
-it cannot be deleted.
-7. Click a card (a card has the name of a specific environment, such as `test` or `online`) under a project to enter a 
-specific environment page and see the toggles.
-
-
-### Editing Projects
-
-You can choose to edit a project by clicking the three-vertical-dot icon in the top-right corner of a project.![create environment screenshot](./pictures/create_environment.png)
-
-You can modify the selected project's name or/and description and save to make the changes into effective.
-
-
-### Adding Project Environment
-
-You can add new environments for your project and make the toggles accessible for different environment.
-
-Here are the steps to add a new environment:
-
-1. Click the three-vertical-dot icon in the top-right corner of a project and choose the `Add environment` menu item.
-2. Fill in the environment name.
-3. Fill in a key. It must be unique within a project, and it cannot be changed once an environment is created.
-4. Click `Confirm` button to create the environment. It cannot be deleted once created.
-
-**Note**: A newly created environment shares the toggles of all the environments under the same project. But you need to 
-set a toggle's configuration for a specific environment.
-
-## Editing Environments
-
-You can choose to edit an environment by clicking the three-vertical-dot icon in the top-right corner of an environment.![edit environment screenshot](./pictures/edit_environment.png)
-
-You can only change an environment's name at this time.
-
-
-## Feature Toggle
-
-The FeatureProbe service provides powerful feature toggles management. You can manipulate the release of your business 
-services or applications by changing the volume portion, controlling enabled features, and watching over the metrics 
-with different toggles settings to ramp up new configurations until enabling it for everyone.
-The toggles setting works for different environment individually, and you can switch among different environments easily 
-by using the drop-down menu in the upper-left corner inside a project page.
-
-### Toggle Dashboard![toggle list screenshot](./pictures/toggle_list.png)
-
-1. The picture is the toggle list of the `My First Project` `online` environment.
-2. There is environment switch at the top of left side navigator. Click the drop-down menu to select an environment.
-3. There are three filter fields and a search field to help to find out toggles quickly. 
-
-### Adding Toggles
-
-You can add new toggles for your project on the project page.![create toggle screenshot](./pictures/create_toggle.png)
-
-Here are the steps to add a new toggle:
-
-1. Fill in the toggle's name.
-2. Fill in the toggle's Key. It is unique within a project and cannot be changed once created.
-3. Fill in the toggle's description.
-4. Create or select tags from the list.
-5. Select SDK.
-6. Select a return type. Now there are four types (Boolean, String, Number, JSON). The return type cannot be edited later.
-7. Fill in Variations.
-	1. For Boolean return type: There are two default variations, and their values are `true` and `false` respectively. You cannot
-      change the variations number. You cannot change variations value (only "true" and "false" are allowed), and you can change 
-      their name and description.
-   2. For other return types: There are two default variations, and the initial values are Null. You can add or delete 
-      variations and change their value, name, and description.
-8. Fill in `Disabled return value`. It is the default value to be return when the toggle is disabled. By default, this 
-value will be set as variation1's disabled return value. You can change it.
-9. Click `Create` button in the upper-right corner.
-
-**Note**: When a new toggle is created, the system will create a toggle template based on the new toggle automatically. And 
-all environments under the same project share that template.
-
-### Editing Toggle Templates
-
-You can edit an existing toggle template. That operation will not change the existing toggle configuration and will be 
-used for the new toggles that will be created in the future.
-
-
-
-### Toggle Configuration
-
-You can set up a toggle's configuration for a specific environment. A toggle must be configured for all environments 
-individually, and the configuration doesn't shared among environments. 
-You need to first select and enter a specific environment page and set up the toggle configuration afterward.![toggle targeting screenshot](./pictures/toggle_targeting.png)
-
-Here are the steps to configure a toggle:
-
-1. Status: It is the toggle's status of enabled or disabled. If it is disabled, the `Disabled return value` is effective, 
-otherwise, the `Rules` and `Default Rule` are effective.
-2. Variations: They are synced from the toggle template and are changeable.
-3. Rules: They are the rules to be matched to make the toggle evaluations effective for specific users based on their
-   attributes. Multiple rules work together with the logical `OR` operation.
-      An example: return special values for specific users.
-      1. Click `Add rule` and fill in the rule name (you will see a placeholder reads "Rule 1" and please use your rule name to
-      replace it).
-      2. Fill in the `Add Subject`, `Select an operator`, and `Enter some values` fields to set up a condition.
-      2. You can add more conditions if needed.
-      2. Select the variate that will be served if the conditions are matched. Or you can set the proportions of the 
-         variations which are defined in a percent form. The sum of all variations' percent portions must be 100%.
-      2. You can re-order the rules by click and drag a rule on the six-dot icon on the right end of a rule card.
-      2. You can delete a rule if it is not relevant anymore.
-4. Default Rule: set up a default return value for the people who are not specified. You can choose to server a pre-defined 
-   variation, or the portions of variations.
-5. Disabled return value: By default, this value uses the value in the toggle template, and it is changeable.
-6. Click the `publish` button and a diff of configurations will pop out.
-7. Click `confirm` to make the configuration effective.
-
-
-
-### Toggle Metrics of Accessing and Evaluation Information
-
-The FeatureProbe provides a graphic report of toggles' accessing/usage information and the evaluation results.
-The report is environment specific.![evaluations screenshot](./pictures/evaluations.png)
-
-Here are the key information of the reports:
-
-1. Variation counts: This is to report the variations hitting statistics.
-2. Scope and granularity: By default, you can see the past 24 hours statistics with a granularity of 2 hours. You can 
-change to see the past 7 days' report with a daily granularity.
-
-
+    ```
+ 
+     * 在一切准备就绪后，运营人员直接把"Button Color AB Test"开关"启用"，配置内容便即刻生效了
+     * 产品小王通过查看实验数据得出，支付按钮为绿色购买率会更高，于是全量用户开放为绿色
+
+除此之外，我们还准备了一个彩蛋：FeatureProbe的功能开关（header_skin），可以控制平台的皮肤，快去看看吧。
+
+
+# 功能介绍
+## 登录
+## 账户管理
+## 项目管理
+## 使用功能开关
+  
+    
+## 登录
+首次登录FeatureProbe平台，需要用“初始账号和密码”【账号：Admin  密码：Pass1234】登录。
+
+1. 在账号处填写Admin
+2. 在密码处填写Pass1234
+3. 点击登录按钮，即可登录成功
+
+## 账户管理
+### 添加账户成员
+如果想添加更多的企业成员，来共同使用FeatureProbe平台，则需要Admin到账户管理中添加成员。
+
+1. 点击添加成员按钮
+2. 填写成员账号（可批量添加，逗号隔开即可）
+3. 默认密码（系统提供了快速密码作为被添加成员的初始密码，如果想自定义密码，请取消勾选）
+4. 填写密码（“默认密码”取消勾选后，自定义密码为必填项）
+5. 点击创建按钮，即可完成账户成员的创建
+
+- 注：账户成员添加成功后，即可到登录页面登录FeatureProbe平台（账号和密码即为Admin创建成员时的账号和密码）
+
+### 编辑账户成员【常用于成员“忘记密码”】
+Admin这个账号任何人都没有编辑权限，Admin有权限编辑其他账户成员信息。
+
+- 注：修改后，成员可重新登录系统（若在成员登录后编辑了成员的密码，该成员在无任何操作30分钟的情况下，系统会让其重新登录）
+
+### 删除账户成员
+Admin这个账号任何人都没有权限删除，Admin有权删除其他账户成员。
+
+- 注：账号成员一旦删除，则不可再创建与被删除成员重名的账号
+
+### 修改密码
+获得初始密码后，出于安全性考虑，任何人都可以修改自己的密码。
+1. 填写原密码
+2. 填写新密码
+3. 确认新密码（与新密码保持一致）
+4. 点击保存按钮，即可完成密码的修改（退出后，可直接用新密码登录，或者该成员在无任何操作30分钟的情况下，系统会让其重新登录）
+
+## 项目管理
+项目允许一个FeatureProbe帐户管理多个不同的业务目标。一般一个项目对应一个系统平台。例如，您可以创建一个名为“移动端应用程序”的项目和另一个名为“服务端应用程序”的项目。每个项目都有自己独特的环境和对应的功能开关。您可以在每个项目中创建多个环境，所有项目必须至少有一个环境
+系统会有一个初始化项目（My First Project），初始项目下有2个环境（test、online）每个环境都有自己的SDK密钥，用于将FeatureProbe SDK连接到特定环境。
+### 添加项目![create project screenshot](./pictures/create_project.png)
+1. 点击顶导“Projects”，进入项目列表页
+2. 点击添加项目按钮
+3. 填写项目名称
+4. 填写key（项目的唯一性标识，一旦创建不可编辑）
+5. 填写描述
+6. 点击创建按钮，即可完成项目的创建（项目一旦被创建，则不能删除。新创建的项目会自带一个online环境）
+7. 点击项目下的环境卡片，可直接进入该项目下该环境的开关列表页面
+
+### 编辑项目![create environment screenshot](./pictures/create_environment.png)
+1. 点击编辑项目icon
+2. 编辑项目信息
+3. 点击保存按钮，即可完成项目的编辑
+
+### 添加环境
+
+1. 点击添加环境
+2. 填写环境名称
+3. 填写key（环境的唯一性标识，同项目下唯一，一旦创建不可编辑）
+4. 点击创建按钮，即可完成环境的创建（环境一旦被创建，则不能删除）
+
+- 注：新环境创建后，会共享该项目下的开关列表（开关的模板信息），开关的配置信息则需进入该环境去自主配置。
+
+### 编辑环境
+![edit environment screenshot](./pictures/edit_environment.png)
+1. 点击编辑环境
+2. 编辑环境信息
+3. 点击保存按钮，即可完成环境的编辑
+
+## 使用功能开关
+FeatureProbe平台提供了强大的功能开关管理模块，功能开关通过选择目标流量，进行功能投放，通过持续观测数据逐步放量直到全量部署。
+### 开关仪表盘
+
+![This is an image](./pictures/toggle_list.png)
+1. 默认展示My First Project的online环境的开关列表信息
+2. 左侧导航栏提供了快速切换环境的入口（点击环境右侧的下拉icon）
+3. 通过筛选条件，我们可以根据"evaluated","enabled/disabled","tags","name/key/description"对开关进行快速的筛选
+
+### 添加开关模板
+开关的“模板信息”（开关创建成功后，将同步成为已有环境的初始化信息）
+
+![This is an image](./pictures/create_toggle.png)
+1. 填写开关名称
+2. 填写开关的key（开关的唯一性标识，同项目下唯一，一旦创建不可编辑）
+3. 填写描述信息
+4. 选择标签（无初始值，可自行创建）
+5. 选择sdk类型
+6. 选择开关的return type（支持4种：Boolean、String、Number、JSON），一旦创建不可编辑
+7. 填写Variations
+    - 默认两个variations，value为空（最少2个，可自行增减）【value可更改，name可更改，description可更改】
+
+8. 填写disabled return value（开关禁用时的返回值），默认同步variation1的数据，可更改
+9. 点击创建按钮，完成开关的创建
+
+### 编辑开关模板
+开关的“模板信息”（编辑成功后，不会影响已有环境中的开关配置信息，仅同步到未来新环境的初始化信息）
+
+### 开关配置
+开关的“配置信息”（各环境间不共享，独立拥有,修改配置信息，不会同步到开关的"模板信息"），请切换到目标环境后，再进行配置（配置信息的初始信息，会自动同步开关的“模板信息”）
+
+![This is an image](./pictures/toggle_targeting.png)
+1. Status：开关的状态（禁用后生效Disabled return value，启用后开关配置中的Rules及Default Rule生效）
+2. Variations：默认同步开关的模板信息（可更改）
+3. Rules：多个Rule之间为“或”关系（rule的顺序很重要，一个用户进来，是从上往下依次筛选的，命中了第一个Rule就不会再匹配下面的Rule，没命中的才会继续往下筛）
+
+  - 添加Rule：为“指定人群”设置“返回值”
+ 
+    + 填写rule名称
+    + 根据“条件”筛选“指定人群”，条件之间为且的关系（至少有一个条件）
+      * 添加条件：选择用户属性（自定义添加，回车生效）、选择关系符、填写具体的值（自定义添加，回车生效）
+      * 删除条件：点击条件行右侧的删除icon，即可删除该条件
+    + 指定返回值：在variations中选择【可以选择某一个variation（该项占比100%），也可以每个variation指定百分比（所有的variation占比之和必须为100%）】
+    + 点击Rule卡片区域并拖动，可以对rule进行自由排序
+    + 删除Rule卡片：点击卡片右上角删除icon即可删除整条Rule
+
+4. 设置Default Rule：为“未指定人群”设置默认返回值：在variations中选择【可以选择某一个variation（该项占比100%），也可以每个variation指定百分比（所有的variation占比之和必须为100%）】
+5. Disabled return value：默认同步开关的模板信息（可更改）
+6. 点击Publish，显示更改前后的diff信息
+7. 查看diff后，点击confirm，完成发布
+
+### 查看开关的访问信息
+开关的访问信息（各环境间不共享，独立拥有）
+
+![This is an image](./pictures/evaluations.png)
+1. 统计信息：展示每个Variation的总访问量
+2. 统计粒度：目前默认展示24小时内的访问信息，点击可切换查看7天内的访问信息
